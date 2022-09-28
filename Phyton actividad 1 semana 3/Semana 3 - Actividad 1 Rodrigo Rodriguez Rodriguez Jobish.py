@@ -293,7 +293,8 @@ Para la edad de la misma forma se pretende usar la media aritmética
 Para las métricas del X6 en adelante se deben usar medidas de programación más avanzadas ya que dependemos de otras 
 columnas no solo de una para saber si el valor no esta lo que causa que usemos fórmulas de comparación don la línea 
 de al lado 
-Eliminamos filas que no tenían suficientes datos, o causaban un ruido no necesario como los pagos erroneos o los pagos fuera de tiempo 
+Eliminamos filas que no tenían suficientes datos, o causaban un ruido no necesario como los pagos erroneos o los pagos fuera de tiempo
+este data set queda listo para poder ser usado
 
 
 """
