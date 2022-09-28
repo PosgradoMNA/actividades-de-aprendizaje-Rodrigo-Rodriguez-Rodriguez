@@ -77,5 +77,4 @@ print(ndf.isna().values.any())
 print(ndf.isnull().any())
 
 
-
 print(ndf.head())
