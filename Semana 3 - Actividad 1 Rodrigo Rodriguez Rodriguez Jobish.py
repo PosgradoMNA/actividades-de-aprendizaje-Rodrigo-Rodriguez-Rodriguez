@@ -1,3 +1,24 @@
+
+"""
+1>. Fundamentos de bases de datos y para ciencia de datos.
+Que es una base de datos:
+Se cataloga como datos almacenados de forma estructurada y sistemática,
+todo esto con el objetivo de poder usados después de forma fácil, las bases de datos pueden tener cualquier tipo de
+información# La ciencia de datos utiliza estas bases de datos para poder realizar predicción o estudios de forma más
+precisa y al conjunto de esta base de datos se les llama almacenes de datos,
+2>. Fundamentos de almacenes de datos (Data Warehouse) para ciencia de datos.
+Que es un DW son bases de datos que están guardados ya sean viejos o nuevos con un interés en particular,
+estos nos ayudan a poder tomar decisiones y poder con esto tomar decisiones dependiendo del análisis que nos
+arroje al final
+Estos datos pueden venir desde otras bases de datos, transacciones o fuentes siendo inclusive actualizados en tiempo real
+Esta información puede modificar un negocio o crear cambios de campaña de forma casi inmediata con las tecnologías del
+hoy en día, de la misma manera tener un almacén de datos puede evolucionar nuestro negocio y darnos una ventaja
+competitiva contra el problema o negocio al que nos enfrentemos
+"""
+
+
+
+
 import pandas as pd
 import numpy as np
 
@@ -76,5 +97,61 @@ ndf['X3'].fillna(value = ndf.X3.median(),
 print(ndf.isna().values.any())
 print(ndf.isnull().any())
 
+#para el Siguente Ejercicio usaremos la moda
 
-print(ndf.head())
+mm = ndf.X2.mode() # para fines del ejercicio usare el grado de estudios
+# esto nos muestra que la mayori a o la moda esta en ir a la universidad
+print(mm)
+ndf['X2'].fillna(value = mm[0], inplace = True)
+print(ndf.isnull().any())
+
+# eliminamos ciertas columnas solo con impute
+# ndf.dropna(subset=['X18','X19','X20','X21','X22','X23'], inplace = True)
+# print(ndf)
+# print(ndf.isnull().any())
+# #PARA fines del ejercicio no elimanare filas que esten vacias buscare la forma de darles un valor por lo cual esto
+# se mantendra en coment el ejercicio anterior
+
+# llenemos los valores de una columna especifica con datos
+
+favs = {'X4': ndf.X4.mode()[0], 'X5': ndf['X5'].mean()}
+ndf.X4.fillna(ndf.X4.mode()[0], inplace=True)
+ndf.X5.fillna(ndf.X5.mean(), inplace=True)
+print(ndf)
+print(ndf.isnull().any())
+
+####MEJOR USO DE LA  mediana  contra la media###
+data = {'Salary':  [28, 30, 30, 35, 37, 40, 400]
+}
+adf = pd.DataFrame(data)
+print(adf)
+desc=adf.describe()
+print(desc)
+
+#La mediana se usa con datos que no se ajustan a un distribucuin normal, debido al lo grande que puede ser su metodo
+#La media se usa para conocer parametros exactamente en la mitad de una muestra para valores que sigan un logica lineal
+
+# como vemos los valores de una colmna en especifico
+print(ndf.columns)
+print(ndf.columns.sort_values())
+print(ndf.loc[2:5 , 'X6':'X12'])
+favs = ['X18','X19','X20','X21','X22','X23']
+
+print(ndf.loc[2:5 , favs])
+print(ndf.iloc[2:5, [1,2, 3]])
+print(ndf.columns)
+
+for i in ndf.columns:
+  print(i)
+
+print( ndf.head(4))
+
+print(ndf.X2.unique())
+print(df.groupby(['X2', 'X3']).size())# uso de size
+print(df[['X2', 'X3']].value_counts())# Uso de counts
+
+ndf2 = ndf.drop(['X18','X19','X20','X21','X22','X23'], axis = 1)#eliminamos columnas
+print(ndf2)
+
+ndf2.rename(columns = {'X1' : 'AMOUNT', 'X2': 'GENDER'}, inplace = True)
+print(ndf2)
