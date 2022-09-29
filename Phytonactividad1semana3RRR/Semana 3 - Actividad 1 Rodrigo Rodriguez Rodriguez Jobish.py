@@ -177,6 +177,14 @@ df.dropna(how='all', inplace = True)
 df.dropna(thresh=11, inplace=True)
 df.drop(['Y',],axis=1,inplace=True)
 mx=df.X5.mean()
+#eliminate 0
+
+df.loc[(df.X2== 0),'X2']= None
+df.loc[(df.X3== 0),'X3']= None
+df.loc[(df.X4== 0),'X4']= None
+df.loc[(df.X5== 0),'X5']= None
+
+mx=df.X5.mean()
 df["X5"].fillna(value = mx,inplace = True)
 df["X3"].fillna(value = ndf.X3.median(),inplace = True)
 df["X2"].fillna(value = df.X2.mode(),inplace = True)
