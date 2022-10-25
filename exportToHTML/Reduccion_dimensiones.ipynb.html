@@ -1,0 +1,519 @@
+<html>
+<head>
+<title>Reduccion_dimensiones.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #808080;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #6897bb;}
+.s4 { color: #6a8759;}
+.s5 { color: #629755; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Reduccion_dimensiones.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+</span><span class="s1">&lt;a href=&quot;https://colab.research.google.com/github/PosgradoMNA/actividades-de-aprendizaje-Rodrigo-Rodriguez-Rodriguez/blob/main/Reduccion_dimensiones.ipynb&quot; target=&quot;_parent&quot;&gt;&lt;img src=&quot;https://colab.research.google.com/assets/colab-badge.svg&quot; alt=&quot;Open In Colab&quot;/&gt;&lt;/a&gt; 
+</span><span class="s0">#%% md 
+</span><span class="s1"># Bienvenido al notebook 
+ 
+El objetivo es que entendamos de una manera visual, que es lo que pasa cuando nosotros seleccionamos cierto número de componentes principales o % de variabilidad  de una base de datos. 
+ 
+Primero entenderemos, que pasa adentro de PCA, que se basa en lo siguiente a grandes razgos: 
+ 
+**Análisis de Componentes Principales** 
+ 
+El análisis de datos multivariados involucra determinar transformaciones lineales que ayuden 
+a entender las relaciones entre las características importantes de los datos. La idea central del Análisis de Componentes Principales (PCA) es reducir las dimensiones de un conjunto de datos que presenta variaciones correlacionadas, reteniendo una buena proporción de la variación presente en dicho conjunto. Esto se logra obteniendo la transformación a un nuevo conjunto de variables: los componentes principales (PC). Cada PC es una combinación lineal con máxima varianza en dirección ortogonal a los demás PC. 
+ 
+ 
+![title](https://miro.medium.com/max/720/1*XGaA7KWUlhWZLIezYEBIHA.gif) 
+ 
+ 
+Para entender un poco más de PCA y SVD, visita el siguiente link: 
+*Truco: Prueba entrar con tu cuenta del tec :)* 
+ 
+https://towardsdatascience.com/pca-and-svd-explained-with-numpy-5d13b0d2a4d8 
+ 
+ 
+Basicamente, vamos a seguir los siguientes pasos: 
+ 
+1. Obtener la covarianza. OJO: X tiene sus datos centrados :) 
+ 
+![title](https://miro.medium.com/max/194/1*92t9OuqxIG0YpJXsNNgI4A.png) 
+ 
+2. Los componentes principales se van a obtener de la eigen descomposicicion de la matriz de covarianza. 
+ 
+![title](https://miro.medium.com/max/260/1*c1S0_26A8RxEQQUVyMp5Vw.png) 
+ 
+3. Para la reducción de dimensiones vamos a seleccionar k vectores de W y proyectaremos nuestros datos. 
+ 
+![title](https://miro.medium.com/max/214/1*jnj2YMpWIApnCzxRU_zjfg.png) 
+ 
+![title](https://miro.medium.com/max/720/1*ba0XpZtJrgh7UpzWcIgZ1Q.jpeg) 
+ 
+ 
+ 
+ 
+</span><span class="s0">#%% md 
+</span>
+<span class="s1"># Ejercicio 1, Descomposición y Reconstrucción 
+***Descomposición*** 
+ 
+Encuentra los eigenvalores y eigenvectores de las siguientes matrices 
+ 
+$A = \begin{pmatrix} 3,0,2 \\ 3,0,-2 \\ 0,1,1 \end{pmatrix}$ 
+$A2 = \begin{pmatrix} 1,3,8 \\ 2,0,0 \\ 0,0,1 \end{pmatrix}$ 
+$A3 = \begin{pmatrix} 5,4,0 \\ 1,0,1 \\ 10,7,1 \end{pmatrix}$ 
+ 
+y reconstruye la matriz original a traves de las matrices  
+$WDW^{-1}$ (OJO. Esto es lo mismo de la ecuación del paso 2 solo le cambiamos la variable a la matriz diagonal) 
+ 
+ 
+ 
+</span><span class="s0">#%% md 
+</span><span class="s1"># Eigenvalores y eigenvectores 
+</span><span class="s0">#%% 
+###-----------------EJEMPLO DE EIGENVALORES</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">from </span><span class="s1">numpy </span><span class="s2">import </span><span class="s1">array</span>
+<span class="s2">from </span><span class="s1">numpy.linalg </span><span class="s2">import </span><span class="s1">eig</span>
+<span class="s0"># define la matriz</span>
+<span class="s1">A = array([[</span><span class="s3">1</span><span class="s2">, </span><span class="s3">2</span><span class="s2">, </span><span class="s3">3</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">4</span><span class="s2">, </span><span class="s3">5</span><span class="s2">, </span><span class="s3">6</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">7</span><span class="s2">, </span><span class="s3">8</span><span class="s2">, </span><span class="s3">9</span><span class="s1">]])</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz original-------&quot;</span><span class="s1">)</span>
+<span class="s1">print(A)</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+<span class="s0"># calcula la eigendescomposicion</span>
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = eig(A)</span>
+<span class="s1">print(values) </span><span class="s0">#D</span>
+<span class="s1">print(vectors) </span><span class="s0">#W</span>
+
+<span class="s0">#Ejemplo de reconstrucción</span>
+
+
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = np.linalg.eig(A)</span>
+
+<span class="s1">W = vectors</span>
+<span class="s1">Winv = np.linalg.inv(W)</span>
+<span class="s1">D = np.diag(values)</span>
+<span class="s0">#la matriz B tiene que dar igual a A</span>
+<span class="s0">#reconstruye la matriz </span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz reconstruida-------&quot;</span><span class="s1">)</span>
+<span class="s1">B=W.dot(D).dot(Winv)</span>
+<span class="s1">print(B)</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+<span class="s0">#%% 
+#Matriz 1import numpy as np</span>
+<span class="s2">from </span><span class="s1">numpy </span><span class="s2">import </span><span class="s1">array</span>
+<span class="s2">from </span><span class="s1">numpy.linalg </span><span class="s2">import </span><span class="s1">eig</span>
+<span class="s0"># define la matriz</span>
+<span class="s1">A = array([[</span><span class="s3">3</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">2</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">3</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s1">-</span><span class="s3">2</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">0</span><span class="s2">,</span><span class="s3">1</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]])</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz original-------&quot;</span><span class="s1">)</span>
+<span class="s1">print(A)</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+<span class="s0"># calcula la eigendescomposicion</span>
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = eig(A)</span>
+<span class="s1">print(values) </span><span class="s0">#D</span>
+<span class="s1">print(vectors) </span><span class="s0">#W</span>
+
+<span class="s0">#Ejemplo de reconstrucción</span>
+
+
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = np.linalg.eig(A)</span>
+
+<span class="s1">W = vectors</span>
+<span class="s1">Winv = np.linalg.inv(W)</span>
+<span class="s1">D = np.diag(values)</span>
+<span class="s0">#la matriz B tiene que dar igual a A</span>
+<span class="s0">#reconstruye la matriz</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz reconstruida-------&quot;</span><span class="s1">)</span>
+<span class="s1">B=W.dot(D).dot(Winv)</span>
+<span class="s1">print(np.round(B</span><span class="s2">,</span><span class="s3">3</span><span class="s1">))</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+
+<span class="s0">#%% 
+</span><span class="s1">A = array([[</span><span class="s3">1</span><span class="s2">,</span><span class="s3">3</span><span class="s2">, </span><span class="s3">8</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">2</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">0</span><span class="s2">,</span><span class="s3">0</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]])</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz original-------&quot;</span><span class="s1">)</span>
+<span class="s1">print(A)</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+<span class="s0"># calcula la eigendescomposicion</span>
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = eig(A)</span>
+<span class="s1">print(values) </span><span class="s0">#D</span>
+<span class="s1">print(vectors) </span><span class="s0">#W</span>
+
+<span class="s0">#Ejemplo de reconstrucción</span>
+
+
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = np.linalg.eig(A)</span>
+
+<span class="s1">W = vectors</span>
+<span class="s1">Winv = np.linalg.inv(W)</span>
+<span class="s1">D = np.diag(values)</span>
+<span class="s0">#la matriz B tiene que dar igual a A</span>
+<span class="s0">#reconstruye la matriz</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz reconstruida-------&quot;</span><span class="s1">)</span>
+<span class="s1">B=W.dot(D).dot(Winv)</span>
+<span class="s1">print(np.round(B</span><span class="s2">,</span><span class="s3">3</span><span class="s1">))</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+
+<span class="s0">#%% 
+</span><span class="s1">A = array([[</span><span class="s3">5</span><span class="s2">, </span><span class="s3">4</span><span class="s2">, </span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">1</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">1</span><span class="s1">]</span><span class="s2">, </span><span class="s1">[</span><span class="s3">10</span><span class="s2">,</span><span class="s3">7</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]])</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz original-------&quot;</span><span class="s1">)</span>
+<span class="s1">print(A)</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+<span class="s0"># calcula la eigendescomposicion</span>
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = eig(A)</span>
+<span class="s1">print(values) </span><span class="s0">#D</span>
+<span class="s1">print(vectors) </span><span class="s0">#W</span>
+
+<span class="s0">#Ejemplo de reconstrucción</span>
+
+
+<span class="s1">values</span><span class="s2">, </span><span class="s1">vectors = np.linalg.eig(A)</span>
+
+<span class="s1">W = vectors</span>
+<span class="s1">Winv = np.linalg.inv(W)</span>
+<span class="s1">D = np.diag(values)</span>
+<span class="s0">#la matriz B tiene que dar igual a A</span>
+<span class="s0">#reconstruye la matriz</span>
+<span class="s1">print(</span><span class="s4">&quot;-------Matriz reconstruida-------&quot;</span><span class="s1">)</span>
+<span class="s1">B=W.dot(D).dot(Winv)</span>
+<span class="s1">print(np.round(B</span><span class="s2">,</span><span class="s3">1</span><span class="s1">))</span>
+<span class="s1">print(</span><span class="s4">&quot;-----------------------------&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">### es interesante poder ver que las matrices necesitan ser establecidas de forma correcta y  al hace la inversa tenemos que identificar cuantos digitos significativos son los necesitamos idnetificar el error que se puede generar es importante para al momento de reconstruir tomemos los digitos necesiarios 
+ 
+</span><span class="s0">#%% md 
+</span><span class="s1">**¿Qué significa  reducir dimensiones?** 
+ 
+Esto sera cuando proyectemos a ese espacio de los componentes principales pero no los seleccionemos todos, solo los más importantes y viajemos de regreso a nuestras unidades a través de una reproyección o proyección en sentido inverso. 
+ 
+Es decir: 
+Unidades-PC 
+PC-Unidades 
+ 
+Veamoslo graficamente, que pasa con esa selección de los PCs y su efecto. 
+ 
+ 
+Para ello usaremos Singular Value Descomposition (SVD). 
+ 
+ 
+ 
+# Singular Value Descomposition(SVD) 
+ 
+Es otra descomposición que tambien nos ayudara a reducir dimensiones. 
+ 
+&lt;img src=&quot;https://miro.medium.com/max/720/1*6wkgGgBy2NLVmRVOw8K86w.png&quot; width=&quot;300&quot;&gt; 
+ 
+ 
+</span><span class="s0">#%% raw 
+</span><span class="s1">#Ejercicio 2 
+Juega con Lucy, una cisne, ayudala a encontrar cuantos valores singulares necesita para no perder calidad a través de SVD. Si quieres ir más alla sube una foto que tu prefieras :D 
+ 
+A esto se le llama compresión de imagenes :o 
+</span><span class="s0">#%% 
+</span>
+<span class="s0">#%% 
+</span><span class="s2">from </span><span class="s1">six.moves </span><span class="s2">import </span><span class="s1">urllib</span>
+<span class="s2">from </span><span class="s1">PIL </span><span class="s2">import </span><span class="s1">Image</span>
+<span class="s2">import </span><span class="s1">matplotlib.pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+
+<span class="s1">plt.style.use(</span><span class="s4">'classic'</span><span class="s1">)</span>
+<span class="s1">img = Image.open(urllib.request.urlopen(</span><span class="s4">'https://biblioteca.acropolis.org/wp-content/uploads/2015/03/Cisne.jpg'</span><span class="s1">)).convert(</span><span class="s4">'LA'</span><span class="s1">)</span>
+<span class="s0">#img = Image.open('lucy.jpg')</span>
+<span class="s1">imggray = img.convert(</span><span class="s4">'LA'</span><span class="s1">)</span>
+<span class="s1">imgmat = np.array(list(imggray.getdata(band=</span><span class="s3">0</span><span class="s1">))</span><span class="s2">,</span><span class="s1">float)</span>
+
+<span class="s1">print(imgmat)</span>
+
+<span class="s1">imgmat.shape = (imggray.size[</span><span class="s3">1</span><span class="s1">]</span><span class="s2">,</span><span class="s1">imggray.size[</span><span class="s3">0</span><span class="s1">])</span>
+
+<span class="s1">plt.figure(figsize=(</span><span class="s3">9</span><span class="s2">,</span><span class="s3">6</span><span class="s1">))</span>
+<span class="s1">plt.imshow(imgmat</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s1">print(img)</span>
+<span class="s0">#%% 
+</span><span class="s1">U</span><span class="s2">,</span><span class="s1">D</span><span class="s2">,</span><span class="s1">V = np.linalg.svd(imgmat)</span>
+<span class="s1">imgmat.shape</span>
+
+<span class="s0">#%% 
+</span><span class="s1">U.shape</span>
+<span class="s0">#%% 
+</span><span class="s1">V.shape</span>
+<span class="s0">#%% 
+#Cuantos valores crees que son necesarios</span>
+<span class="s0">#A=U*D*V</span>
+<span class="s0">#aqui los elegiremos---------------------------</span>
+<span class="s0"># por las dimensiones de este caso en particular </span>
+<span class="s0">#iremos de 0-660, siendo 660 como normalmente están los datos</span>
+<span class="s0">#con 50 podemos observar que Lucy se ve casi igual, es decir conservamos aquello que en </span>
+<span class="s0"># realidad estaba aportando a la imagen en este caso :D</span>
+<span class="s1">nvalue = </span><span class="s3">50</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">¡Ahora es tu turno! 
+Comprime 3 imagenes 
+</span><span class="s0">#%% 
+#imagen 1</span>
+<span class="s1">nvalue = </span><span class="s3">30</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">### podemos observar que con 30 datos aun conservamos los puntos necesarios sin embargo es necesario mencionar que se genera ruido 
+</span><span class="s0">#%% 
+#imagen 2</span>
+<span class="s1">nvalue = </span><span class="s3">10</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">### con 10 vemos exceso de ruido y emepezamos a ver problema de exceso de ruido 
+</span><span class="s0">#%% 
+</span><span class="s1">nvalue = </span><span class="s3">25</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span><span class="s0">#imagen 3</span>
+<span class="s0">#%% md 
+</span><span class="s1">### con 25 aun podemos ver que el sistema fuciona pero genera mucho ruido 
+</span><span class="s0">#%% 
+</span>
+<span class="s0">#%% md 
+</span><span class="s1">con otras imagenes 
+</span><span class="s0">#%% 
+</span><span class="s2">from </span><span class="s1">six.moves </span><span class="s2">import </span><span class="s1">urllib</span>
+<span class="s2">from </span><span class="s1">PIL </span><span class="s2">import </span><span class="s1">Image</span>
+<span class="s2">import </span><span class="s1">matplotlib.pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+
+<span class="s1">plt.style.use(</span><span class="s4">'classic'</span><span class="s1">)</span>
+<span class="s1">img = Image.open(urllib.request.urlopen(</span><span class="s4">'https://static9.depositphotos.com/1625039/1128/i/450/depositphotos_11287172-stock-photo-big-eyes.jpg'</span><span class="s1">)).convert(</span><span class="s4">'LA'</span><span class="s1">)</span>
+<span class="s0">#img = Image.open('lucy.jpg')</span>
+<span class="s1">imggray = img.convert(</span><span class="s4">'LA'</span><span class="s1">)</span>
+<span class="s1">imgmat = np.array(list(imggray.getdata(band=</span><span class="s3">0</span><span class="s1">))</span><span class="s2">,</span><span class="s1">float)</span>
+
+<span class="s1">print(imgmat)</span>
+
+<span class="s1">imgmat.shape = (imggray.size[</span><span class="s3">1</span><span class="s1">]</span><span class="s2">,</span><span class="s1">imggray.size[</span><span class="s3">0</span><span class="s1">])</span>
+
+<span class="s1">plt.figure(figsize=(</span><span class="s3">9</span><span class="s2">,</span><span class="s3">6</span><span class="s1">))</span>
+<span class="s1">plt.imshow(imgmat</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s1">print(img)</span>
+<span class="s0">#%% 
+</span><span class="s1">U</span><span class="s2">, </span><span class="s1">D</span><span class="s2">, </span><span class="s1">V = np.linalg.svd(imgmat)</span>
+<span class="s1">imgmat.shape</span>
+
+<span class="s1">U.shape</span>
+<span class="s1">V.shape</span>
+<span class="s0">#%% 
+</span><span class="s1">nvalue = </span><span class="s3">50</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% 
+</span><span class="s1">nvalue = </span><span class="s3">15</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">obeservamos que el minimo es el 50 np ya que menos de eso genera rudio y no nos deja ver la imagen correctamente 
+</span><span class="s0">#%% 
+</span><span class="s2">from </span><span class="s1">six.moves </span><span class="s2">import </span><span class="s1">urllib</span>
+<span class="s2">from </span><span class="s1">PIL </span><span class="s2">import </span><span class="s1">Image</span>
+<span class="s2">import </span><span class="s1">matplotlib.pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+
+<span class="s1">plt.style.use(</span><span class="s4">'classic'</span><span class="s1">)</span>
+<span class="s1">img = Image.open(urllib.request.urlopen(</span><span class="s4">'https://images.unsplash.com/photo-1595433707802-6b2626ef1c91?ixlib=rb-1.2.1&amp;ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&amp;w=1000&amp;q=80'</span><span class="s1">)).convert(</span><span class="s4">'LA'</span><span class="s1">)</span>
+<span class="s0">#img = Image.open('lucy.jpg')</span>
+<span class="s1">imggray = img.convert(</span><span class="s4">'LA'</span><span class="s1">)</span>
+<span class="s1">imgmat = np.array(list(imggray.getdata(band=</span><span class="s3">0</span><span class="s1">))</span><span class="s2">,</span><span class="s1">float)</span>
+
+<span class="s1">print(imgmat)</span>
+
+<span class="s1">imgmat.shape = (imggray.size[</span><span class="s3">1</span><span class="s1">]</span><span class="s2">,</span><span class="s1">imggray.size[</span><span class="s3">0</span><span class="s1">])</span>
+
+<span class="s1">plt.figure(figsize=(</span><span class="s3">9</span><span class="s2">,</span><span class="s3">6</span><span class="s1">))</span>
+<span class="s1">plt.imshow(imgmat</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s1">print(img)</span>
+<span class="s1">U</span><span class="s2">, </span><span class="s1">D</span><span class="s2">, </span><span class="s1">V = np.linalg.svd(imgmat)</span>
+<span class="s1">imgmat.shape</span>
+
+<span class="s1">U.shape</span>
+<span class="s1">V.shape</span>
+
+<span class="s0">#%% 
+</span><span class="s1">nvalue = </span><span class="s3">50</span>
+<span class="s0">#------------------------------</span>
+<span class="s1">reconstimg = np.matrix(U[:</span><span class="s2">,</span><span class="s1">:nvalue])*np.diag(D[:nvalue])*np.matrix(V[:nvalue</span><span class="s2">,</span><span class="s1">:])</span>
+<span class="s0">#660x1024= U(660X660)D(660X1024)V(1024x1024)</span>
+        <span class="s0">#=U(660Xnvalues)D(nvaluesXnvalue)V(nvaluesx1024)</span>
+
+        <span class="s0">#=U(660X50)(50X50)(50X1024)</span>
+<span class="s1">plt.imshow(reconstimg</span><span class="s2">,</span><span class="s1">cmap=</span><span class="s4">'gray'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">si qeremos mantener los detalles y evitar el ruido de imagen nos podemos quedar con 50 np 
+ 
+</span><span class="s0">#%% md 
+</span><span class="s1"># Ejercicio 3 
+ 
+**Feature importances o importancia de las variables o características.** 
+ 
+Para este ejercicio, te pediremos que sigas el tutorial de la siguiente pagina: 
+ 
+https://towardsdatascience.com/pca-clearly-explained-how-when-why-to-use-it-and-feature-importance-a-guide-in-python-7c274582c37e 
+ 
+ 
+Danos tus comentarios acerca de lo más relevante del ejercicio y que descubriste de las variables análizadas. Adjunta tu notebook y el link. 
+</span><span class="s0">#%% 
+</span><span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">import </span><span class="s1">matplotlib.pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">from </span><span class="s1">sklearn </span><span class="s2">import </span><span class="s1">datasets</span>
+<span class="s2">from </span><span class="s1">sklearn.decomposition </span><span class="s2">import </span><span class="s1">PCA</span>
+<span class="s2">import </span><span class="s1">pandas </span><span class="s2">as </span><span class="s1">pd</span>
+<span class="s2">from </span><span class="s1">sklearn.preprocessing </span><span class="s2">import </span><span class="s1">StandardScaler</span>
+<span class="s1">plt.style.use(</span><span class="s4">'ggplot'</span><span class="s1">)</span>
+<span class="s0"># Load the data</span>
+<span class="s1">iris = datasets.load_iris()</span><span class="s0">##data set de entraiento que nos permite ver las funciones y como usarlas</span>
+<span class="s1">X = iris.data</span>
+<span class="s1">y = iris.target</span>
+<span class="s0"># Z-score the features</span>
+<span class="s1">scaler = StandardScaler()</span>
+<span class="s1">scaler.fit(X)</span>
+<span class="s1">X = scaler.transform(X)</span>
+<span class="s0"># The PCA model</span>
+<span class="s1">pca = PCA(n_components=</span><span class="s3">2</span><span class="s1">) </span><span class="s0"># estimate only 2 PCs</span>
+<span class="s1">X_new = pca.fit_transform(X) </span><span class="s0"># project the original data into the PCA space</span>
+
+<span class="s0">#%% md 
+</span><span class="s1">vamos a conocer que tiene este data ser dentro con el uso de PCA 
+</span><span class="s0">#%% 
+</span><span class="s1">fig</span><span class="s2">, </span><span class="s1">axes = plt.subplots(</span><span class="s3">1</span><span class="s2">,</span><span class="s3">2</span><span class="s1">)</span>
+<span class="s1">axes[</span><span class="s3">0</span><span class="s1">].scatter(X[:</span><span class="s2">,</span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">X[:</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]</span><span class="s2">, </span><span class="s1">c=y)</span>
+<span class="s1">axes[</span><span class="s3">0</span><span class="s1">].set_xlabel(</span><span class="s4">'x1'</span><span class="s1">)</span>
+<span class="s1">axes[</span><span class="s3">0</span><span class="s1">].set_ylabel(</span><span class="s4">'x2'</span><span class="s1">)</span>
+<span class="s1">axes[</span><span class="s3">0</span><span class="s1">].set_title(</span><span class="s4">'Before PCA'</span><span class="s1">)</span>
+<span class="s1">axes[</span><span class="s3">1</span><span class="s1">].scatter(X_new[:</span><span class="s2">,</span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">X_new[:</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]</span><span class="s2">, </span><span class="s1">c=y)</span>
+<span class="s1">axes[</span><span class="s3">1</span><span class="s1">].set_xlabel(</span><span class="s4">'PC1'</span><span class="s1">)</span>
+<span class="s1">axes[</span><span class="s3">1</span><span class="s1">].set_ylabel(</span><span class="s4">'PC2'</span><span class="s1">)</span>
+<span class="s1">axes[</span><span class="s3">1</span><span class="s1">].set_title(</span><span class="s4">'After PCA'</span><span class="s1">)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">logramos observar que al aplicar el PCA es mejoramos la distrubucion de los datos 
+</span><span class="s0">#%% 
+</span><span class="s1">print(pca.explained_variance_ratio_)</span>
+<span class="s0">#%% md 
+</span><span class="s1">## despues del PCA teneomos que con esto podemos explicar el 95% de los datos lo cual e muy beno para continuar 
+</span><span class="s0">#%% 
+</span><span class="s1">np.cov(X_new.T)</span>
+
+<span class="s0">#%% md 
+</span><span class="s1">ahora haiendo la verificacion vemos que los valores estan dentro de los Eigenvalues 
+</span><span class="s0">#%% 
+</span><span class="s1">pca.explained_variance_</span>
+
+<span class="s0">#%% md 
+</span><span class="s1">el calculado y el pca son iguales 
+ 
+</span><span class="s0">#%% 
+##encontremos la importancia de los compoentes pca</span>
+
+<span class="s1">print(abs(pca.components_))</span>
+<span class="s0">#%% md 
+</span><span class="s1">con esto podemos ver que el componente 1 es mas importante que el 2 
+</span><span class="s0">#%% md 
+</span><span class="s1">###Biplot 
+</span><span class="s0">#%% 
+</span><span class="s2">def </span><span class="s1">biplot(score</span><span class="s2">, </span><span class="s1">coeff </span><span class="s2">, </span><span class="s1">y):</span>
+    <span class="s5">''' 
+    Author: Serafeim Loukas, serafeim.loukas@epfl.ch 
+    Inputs: 
+       score: the projected data 
+       coeff: the eigenvectors (PCs) 
+       y: the class labels 
+   '''</span>
+    <span class="s1">xs = score[:</span><span class="s2">,</span><span class="s3">0</span><span class="s1">] </span><span class="s0"># projection on PC1</span>
+    <span class="s1">ys = score[:</span><span class="s2">,</span><span class="s3">1</span><span class="s1">] </span><span class="s0"># projection on PC2</span>
+    <span class="s1">n = coeff.shape[</span><span class="s3">0</span><span class="s1">] </span><span class="s0"># number of variables</span>
+    <span class="s1">plt.figure(figsize=(</span><span class="s3">10</span><span class="s2">,</span><span class="s3">8</span><span class="s1">)</span><span class="s2">, </span><span class="s1">dpi=</span><span class="s3">100</span><span class="s1">)</span>
+    <span class="s1">classes = np.unique(y)</span>
+    <span class="s1">colors = [</span><span class="s4">'g'</span><span class="s2">,</span><span class="s4">'r'</span><span class="s2">,</span><span class="s4">'y'</span><span class="s1">]</span>
+    <span class="s1">markers=[</span><span class="s4">'o'</span><span class="s2">,</span><span class="s4">'^'</span><span class="s2">,</span><span class="s4">'x'</span><span class="s1">]</span>
+    <span class="s2">for </span><span class="s1">s</span><span class="s2">,</span><span class="s1">l </span><span class="s2">in </span><span class="s1">enumerate(classes):</span>
+        <span class="s1">plt.scatter(xs[y==l]</span><span class="s2">,</span><span class="s1">ys[y==l]</span><span class="s2">, </span><span class="s1">c = colors[s]</span><span class="s2">, </span><span class="s1">marker=markers[s]) </span><span class="s0"># color based on group</span>
+    <span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range(n):</span>
+        <span class="s0">#plot as arrows the variable scores (each variable has a score for PC1 and one for PC2)</span>
+        <span class="s1">plt.arrow(</span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s1">coeff[i</span><span class="s2">,</span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">coeff[i</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]</span><span class="s2">, </span><span class="s1">color = </span><span class="s4">'k'</span><span class="s2">, </span><span class="s1">alpha = </span><span class="s3">0.9</span><span class="s2">,</span><span class="s1">linestyle = </span><span class="s4">'-'</span><span class="s2">,</span><span class="s1">linewidth = </span><span class="s3">1.5</span><span class="s2">, </span><span class="s1">overhang=</span><span class="s3">0.2</span><span class="s1">)</span>
+        <span class="s1">plt.text(coeff[i</span><span class="s2">,</span><span class="s3">0</span><span class="s1">]* </span><span class="s3">1.15</span><span class="s2">, </span><span class="s1">coeff[i</span><span class="s2">,</span><span class="s3">1</span><span class="s1">] * </span><span class="s3">1.15</span><span class="s2">, </span><span class="s4">&quot;Var&quot;</span><span class="s1">+str(i+</span><span class="s3">1</span><span class="s1">)</span><span class="s2">, </span><span class="s1">color = </span><span class="s4">'k'</span><span class="s2">, </span><span class="s1">ha = </span><span class="s4">'center'</span><span class="s2">, </span><span class="s1">va = </span><span class="s4">'center'</span><span class="s2">,</span><span class="s1">fontsize=</span><span class="s3">10</span><span class="s1">)</span>
+
+    <span class="s1">plt.xlabel(</span><span class="s4">&quot;PC{}&quot;</span><span class="s1">.format(</span><span class="s3">1</span><span class="s1">)</span><span class="s2">, </span><span class="s1">size=</span><span class="s3">14</span><span class="s1">)</span>
+    <span class="s1">plt.ylabel(</span><span class="s4">&quot;PC{}&quot;</span><span class="s1">.format(</span><span class="s3">2</span><span class="s1">)</span><span class="s2">, </span><span class="s1">size=</span><span class="s3">14</span><span class="s1">)</span>
+    <span class="s1">limx= int(xs.max()) + </span><span class="s3">1</span>
+    <span class="s1">limy= int(ys.max()) + </span><span class="s3">1</span>
+    <span class="s1">plt.xlim([-limx</span><span class="s2">,</span><span class="s1">limx])</span>
+    <span class="s1">plt.ylim([-limy</span><span class="s2">,</span><span class="s1">limy])</span>
+    <span class="s1">plt.grid()</span>
+    <span class="s1">plt.tick_params(axis=</span><span class="s4">'both'</span><span class="s2">, </span><span class="s1">which=</span><span class="s4">'both'</span><span class="s2">, </span><span class="s1">labelsize=</span><span class="s3">14</span><span class="s1">)</span>
+<span class="s0">#%% 
+</span><span class="s2">import </span><span class="s1">matplotlib </span><span class="s2">as </span><span class="s1">mpl</span>
+<span class="s1">mpl.rcParams.update(mpl.rcParamsDefault) </span><span class="s0"># reset ggplot style</span>
+<span class="s0"># Call the biplot function for only the first 2 PCs</span>
+<span class="s1">biplot(X_new[:</span><span class="s2">,</span><span class="s3">0</span><span class="s1">:</span><span class="s3">2</span><span class="s1">]</span><span class="s2">, </span><span class="s1">np.transpose(pca.components_[</span><span class="s3">0</span><span class="s1">:</span><span class="s3">2</span><span class="s2">, </span><span class="s1">:])</span><span class="s2">, </span><span class="s1">y)</span>
+<span class="s1">plt.show()</span>
+<span class="s0">#%% md 
+</span><span class="s1">### ya podemos ver las vairanzas y analizar los PC1 y 2 y concluir que  el pc1 llama al 1,3,4 and pc2 la importa la 2 y 1 
+### al visualizar los valode de la varianzas podemos ver de forma grafica que algunas varianzas tienen correlacion entre ellas 
+ 
+Para ello comprobemos con codigo 
+</span><span class="s0">#%% 
+# Var 3 and Var 4 are extremely positively correlated</span>
+<span class="s1">print(np.corrcoef(X[:</span><span class="s2">,</span><span class="s3">2</span><span class="s1">]</span><span class="s2">, </span><span class="s1">X[:</span><span class="s2">,</span><span class="s3">3</span><span class="s1">])[</span><span class="s3">1</span><span class="s2">,</span><span class="s3">0</span><span class="s1">])</span>
+
+<span class="s0"># Var 2and Var 3 are negatively correlated</span>
+<span class="s1">print(np.corrcoef(X[:</span><span class="s2">,</span><span class="s3">1</span><span class="s1">]</span><span class="s2">, </span><span class="s1">X[:</span><span class="s2">,</span><span class="s3">2</span><span class="s1">])[</span><span class="s3">1</span><span class="s2">,</span><span class="s3">0</span><span class="s1">])</span>
+
+<span class="s0">#%% 
+</span></pre>
+</body>
+</html>
